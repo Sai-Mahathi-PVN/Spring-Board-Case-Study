@@ -22,7 +22,7 @@ library(caTools)
 library(rpart)
 library(rpart.plot)
 
-sdf <- read_excel("sales_data.xlsx",sheet = "sales_data")
+sdf <- read_csv("sales_data_updated.csv")
 glimpse(sdf)
 boxplot(sdf$sales_dollars_value, sdf$sales_units_value, 
         sdf$sales_lbs_value, sdf$`Google Search Data`, sdf$`Social Media Data`)
@@ -31,19 +31,23 @@ boxplot(sdf$sales_dollars_value, sdf$sales_units_value,
 ####MODEL CONSTRUCTION
 
 #Converting categorical variables to factor
-j <- c("MONTH","WEEK NO.", "QUARTER","Claim ID", "Claim Name","Vendor")
+j <- c("month","Week_No.","Vendor")
 sdf[j] <- lapply(sdf[j], factor)
+
+sdf[,15:68]
+
+sdf[,15:68] <- lapply(sdf[,15:68], factor)
 
 #Scaling Numeric variables
 sdf$sales_dollars_value <- c(scale(sdf$sales_dollars_value))
 sdf$sales_units_value <- c(scale(sdf$sales_units_value))
 sdf$sales_lbs_value <- c(scale(sdf$sales_lbs_value))
-sdf$`Google Search Data` <- c(scale(sdf$`Google Search Data`))
-sdf$`Social Media Data` <- c(scale(sdf$`Social Media Data`))
+sdf$google_search_volume <- c(scale(sdf$google_search_volume))
+sdf$total_media_post <- c(scale(sdf$total_media_post))
 
 #Selecting a set of significant variables for constructing model
-df1 <- subset (sdf, select = -c(system_calendar_key_N,product_id, DATE,
-                                `Claim Name`,`WEEK NO.`, MONTH))
+df1 <- subset (sdf, select = -c(...1,system_calendar_key_N,product_id, Date,
+                                claim_id,Week_No., month))
 
 smp_size <- floor(0.80 * nrow(df1))
 set.seed(123)
@@ -74,10 +78,15 @@ regressor = lm(formula = sales_dollars_value ~ . ,
                data = training_set)
 summary(regressor)
 
+avPlots(regressor)
+
+p <- predict(regressor, newdata = testing_set)
+eval_results(testing_set$sales_dollars_value, p, testing_set)
+
 ##REGRESSION TREE
 
 regression_tree <- rpart(sales_dollars_value ~ . , data = training_set, 
-              control=rpart.control(cp=.0001))
+                         control=rpart.control(cp=.0001))
 
 predictions_test_cart <- predict(regression_tree, newdata = testing_set)
 eval_results(testing_set$sales_dollars_value, predictions_test_cart, testing_set)
@@ -105,7 +114,7 @@ optimal_lambda
 predictions_train <- predict(cv_ridge_reg, s = optimal_lambda, newx = x)
 eval_results(y_train, predictions_train, training_set)
 # Prediction and evaluation on test data
-predictions_test <- predict(ridge_reg, s = optimal_lambda, newx = x_test)
+predictions_test <- predict(cv_ridge_reg, s = optimal_lambda, newx = x_test)
 eval_results(y_test, predictions_test, testing_set)
 
 
