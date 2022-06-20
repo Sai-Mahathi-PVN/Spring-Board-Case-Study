@@ -2,4 +2,6 @@ The sales_data is merged with google_search_data and social_media_data based on 
 
 The Code for merging is present in the Exploratory_Data_Analysis.ipynb notebook
 
-The link to the updated_sales_data.csv is https://drive.google.com/file/d/1m85PEgq_bRXcQyC_WPZ51f5iBwzX6Flu/view?usp=sharing
+The link to the original dataset is https://drive.google.com/file/d/1-_VuAhV8oSUYRE6cGSb9cXx17BdltGH9/view?usp=sharing
+
+The link to the updated_sales_data.csv is https://drive.google.com/file/d/1JByWwVe10cQzwmtl8c-EYo8sXp4uEicR/view?usp=sharing
